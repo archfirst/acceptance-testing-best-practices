@@ -1,0 +1,22 @@
+{
+  "name": "cucumberjs-cucumberjs-webdriverio",
+  "description": "cucumberjs-cucumberjs-webdriverio",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/archfirst/acceptance-testing-best-practices.git"
+  },
+  "scripts": {
+    "test": "./node_modules/cucumber/bin/cucumber.js ./test/features/ --require ./test/step_definitions/ --format pretty"
+  },
+  "devDependencies": {
+    "chai": "^3.0.0",
+    "chai-as-promised": "^5.1.0",
+    "chai-datetime": "^1.4.0",
+    "chai-stats": "^0.3.0",
+    "cucumber": "^0.5.1",
+    "knex": "^0.8.6",
+    "pg": "^4.4.0",
+    "webdriverio": "^3.2.0"
+  }
+}
