@@ -4,6 +4,7 @@
 var World = function World(callback) {
     // ----- Cached objects -----
     this.accountName = undefined;
+    this.categoryName = undefined;
 
     // ----- Accounts -----
     this.createAccount = function(name, callback) {
@@ -79,6 +80,64 @@ var World = function World(callback) {
         this.client
             .url('/settings/accounts')
             .element('.accountView=' + expectedName)
+            .call(callback);
+    };
+
+    // ----- Categories -----
+    this.createCategory = function(name, callback) {
+        this.categoryName = name;
+        this.client
+            .url('/settings/categories')
+            .setValue('.categoryAddForm-name', name)
+            .click('.categoryAddForm button')
+            .then(function() {
+                callback();
+            });
+    };
+
+    this.changeCategoryName = function(newName, callback) {
+
+        var self = this;
+
+        var liElement = null;
+        var categoryFormElement = null;
+        var categoryFormNameElement = null;
+
+        this.client
+            .url('/settings/categories')
+            .element('.categoryView=' + this.categoryName).element('..')
+            .then(function(res) {
+                // Click the list item
+                liElement = res.value.ELEMENT;
+                return self.client.elementIdClick(liElement);
+            })
+            .then(function() {
+                return self.client.elementIdElement(liElement, '.categoryForm-name')
+            })
+            .then(function(res) {
+                // Clear the existing category name from the form field
+                categoryFormNameElement = res.value.ELEMENT;
+                return self.client.elementIdClear(categoryFormNameElement);
+            })
+            .then(function() {
+                // Fill in the new category name
+                return self.client.elementIdValue(categoryFormNameElement, newName);
+            })
+            .then(function() {
+                return self.client.elementIdElement(liElement, '.categoryForm')
+            })
+            .then(function(res) {
+                // Submit the form
+                categoryFormElement = res.value.ELEMENT;
+                return self.client.submit(categoryFormElement);
+            })
+            .call(callback);
+    };
+
+    this.assertCategoryExists = function(expectedName, callback) {
+        this.client
+            .url('/settings/categories')
+            .element('.categoryView=' + expectedName)
             .call(callback);
     };
 
