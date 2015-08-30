@@ -13,9 +13,7 @@ var World = function World(callback) {
             .url('/settings/accounts')
             .setValue('.accountAddForm-name', name)
             .click('.accountAddForm button')
-            .then(function() {
-                callback();
-            });
+            .call(callback);
     };
 
     this.changeAccountName = function(newName, callback) {
@@ -27,14 +25,11 @@ var World = function World(callback) {
         //    .element('.accountView=' + this.accountName).click('..')
         //    .element('.accountView=' + this.accountName).element('..').setValue('.accountForm-name', newName)
         //    .element('.accountView=' + this.accountName).element('..').submitForm('.accountForm')
-        //    .then(function() {
-        //        callback();
-        //    });
+        //    .call(callback);
 
         var self = this;
 
         var liElement = null;
-        var accountFormElement = null;
         var accountFormNameElement = null;
 
         this.client
@@ -46,7 +41,7 @@ var World = function World(callback) {
                 return self.client.elementIdClick(liElement);
             })
             .then(function() {
-                return self.client.elementIdElement(liElement, '.accountForm-name')
+                return self.client.elementIdElement(liElement, '.accountForm-name');
             })
             .then(function(res) {
                 // Clear the existing account name from the form field
@@ -58,12 +53,11 @@ var World = function World(callback) {
                 return self.client.elementIdValue(accountFormNameElement, newName);
             })
             .then(function() {
-                return self.client.elementIdElement(liElement, '.accountForm')
+                return self.client.elementIdElement(liElement, '.accountForm');
             })
             .then(function(res) {
                 // Submit the form
-                accountFormElement = res.value.ELEMENT;
-                return self.client.submit(accountFormElement);
+                return self.client.submit(res.value.ELEMENT);
             })
             .call(callback);
     };
@@ -90,9 +84,7 @@ var World = function World(callback) {
             .url('/settings/categories')
             .setValue('.categoryAddForm-name', name)
             .click('.categoryAddForm button')
-            .then(function() {
-                callback();
-            });
+            .call(callback);
     };
 
     this.changeCategoryName = function(newName, callback) {
@@ -100,7 +92,6 @@ var World = function World(callback) {
         var self = this;
 
         var liElement = null;
-        var categoryFormElement = null;
         var categoryFormNameElement = null;
 
         this.client
@@ -112,7 +103,7 @@ var World = function World(callback) {
                 return self.client.elementIdClick(liElement);
             })
             .then(function() {
-                return self.client.elementIdElement(liElement, '.categoryForm-name')
+                return self.client.elementIdElement(liElement, '.categoryForm-name');
             })
             .then(function(res) {
                 // Clear the existing category name from the form field
@@ -124,12 +115,11 @@ var World = function World(callback) {
                 return self.client.elementIdValue(categoryFormNameElement, newName);
             })
             .then(function() {
-                return self.client.elementIdElement(liElement, '.categoryForm')
+                return self.client.elementIdElement(liElement, '.categoryForm');
             })
             .then(function(res) {
                 // Submit the form
-                categoryFormElement = res.value.ELEMENT;
-                return self.client.submit(categoryFormElement);
+                return self.client.submit(res.value.ELEMENT);
             })
             .call(callback);
     };
@@ -139,6 +129,61 @@ var World = function World(callback) {
             .url('/settings/categories')
             .element('.categoryView=' + expectedName)
             .call(callback);
+    };
+
+    // ----- Transaction -----
+    this.createTransaction = function(transaction, callback) {
+        var amount = (transaction.payment.length > 0) ? transaction.payment : transaction.deposit;
+        var amountElement = (transaction.payment.length > 0) ? 'payment' : 'deposit';
+        var txn_date = transaction.date.replace(/\//g, '');  // remove slashes
+
+        this.client
+            .url('/accounts')
+            .element('.accountsPanel ul').click('a=' + transaction.account)
+            .waitForExist('.transactionsPanel button')
+            .click('.transactionsPanel button')
+            .waitForExist('form[name=transactionForm] #txn_date')
+            .element('form[name=transactionForm]').click('#txn_date').keys(txn_date)
+            .setValue('form[name=transactionForm] #payee', transaction.payee)
+            .setValue('form[name=transactionForm] #memo', transaction.memo)
+            .selectByVisibleText('form[name=transactionForm] #category', transaction.category)
+            .setValue('form[name=transactionForm] #' + amountElement, amount)
+            .element('form[name=transactionForm]').click('button=OK')
+            .call(callback);
+    };
+
+    /**
+     * Note: We skip the checking of memo and category fields because they are not shown in smaller widths.
+     */
+    this.assertTransactionExists = function(txn, callback) {
+
+        var self = this;
+
+        // Table row that contains the expectedTransaction
+        var row = null;
+
+        var amount = (txn.payment.length > 0) ? txn.payment : txn.deposit;
+        var amountElement = (txn.payment.length > 0) ? '.transactions-columnPayment' : '.transactions-columnDeposit';
+
+        this.client
+            .url('/accounts')
+            .element('.accountsPanel ul').click('a=' + txn.account)
+            .waitForExist('.transactionsPanel button')
+            .element('.transactions-columnPayee=' + txn.payee).element('..')
+            .then(function(res) {
+                row = res.value.ELEMENT;
+                // @TODO: this assertion is frequently failing
+                self.client.elementIdElement(row, '.transactions-columnDate')
+                    .getText()
+                    .should.eventually.equal(txn.date)
+                    .notify(callback);
+            })
+            .then(function() {
+                self.client.elementIdElement(row, amountElement)
+                    .getText()
+                    .should.eventually.equal(amount)
+                    .notify(callback);
+            });
     };
 
     callback();

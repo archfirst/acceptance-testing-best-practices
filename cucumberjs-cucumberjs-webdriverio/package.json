@@ -7,7 +7,7 @@
     "url": "https://github.com/archfirst/acceptance-testing-best-practices.git"
   },
   "scripts": {
-    "test": "./node_modules/cucumber/bin/cucumber.js ./test/features/ --require ./test/step_definitions/ --format pretty"
+    "test": "./node_modules/cucumber/bin/cucumber.js ./test/features/ --require ./test/step_definitions/ --format pretty --tags ~@wip --tags ~@todo"
   },
   "devDependencies": {
     "chai": "^3.0.0",
