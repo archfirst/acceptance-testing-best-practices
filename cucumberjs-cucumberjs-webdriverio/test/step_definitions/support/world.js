@@ -1,6 +1,9 @@
 /* jshint expr: true */
 'use strict';
 
+var Promise = require('bluebird');
+var expect = require('./chai-helpers').expect;
+
 var World = function World(callback) {
     // ----- Cached objects -----
     this.account = undefined;
@@ -14,6 +17,22 @@ var World = function World(callback) {
             .url('/settings/accounts')
             .setValue('.accountAddForm-name', name)
             .click('.accountAddForm button')
+            .call(callback);
+    };
+
+    this.createAccounts = function(accounts, callback) {
+
+        var self = this;
+
+        this.client
+            .url('/settings/accounts')
+            .then(function() {
+                return Promise.each(accounts, function(account) {
+                    return self.client
+                        .setValue('.accountAddForm-name', account.name)
+                        .click('.accountAddForm button');
+                })
+            })
             .call(callback);
     };
 
@@ -88,6 +107,22 @@ var World = function World(callback) {
             .call(callback);
     };
 
+    this.createCategories = function(categories, callback) {
+
+        var self = this;
+
+        this.client
+            .url('/settings/categories')
+            .then(function() {
+                return Promise.each(categories, function(category) {
+                    return self.client
+                        .setValue('.categoryAddForm-name', category.name)
+                        .click('.categoryAddForm button');
+                })
+            })
+            .call(callback);
+    };
+
     this.changeCategoryName = function(newName, callback) {
 
         var self = this;
@@ -133,14 +168,13 @@ var World = function World(callback) {
     };
 
     // ----- Transaction -----
-    this.createTransaction = function(transaction, callback) {
-        this.transaction = transaction;
+    function _createTransaction(client, transaction) {
 
         var amount = (transaction.payment.length > 0) ? transaction.payment : transaction.deposit;
         var amountElement = (transaction.payment.length > 0) ? 'payment' : 'deposit';
         var txn_date = transaction.date.replace(/\//g, '');  // remove slashes
 
-        this.client
+        return client
             .url('/accounts')
             .element('.accountsPanel ul').click('a=' + transaction.account)
             .waitForExist('.transactionsPanel')
@@ -151,8 +185,26 @@ var World = function World(callback) {
             .setValue('form[name=transactionForm] #memo', transaction.memo)
             .selectByVisibleText('form[name=transactionForm] #category', transaction.category)
             .setValue('form[name=transactionForm] #' + amountElement, amount)
-            .element('form[name=transactionForm]').click('button=OK')
+            .element('form[name=transactionForm]').click('button=OK');
+    }
+
+    this.createTransaction = function(transaction, callback) {
+        this.transaction = transaction;
+
+        _createTransaction(this.client, transaction)
             .call(callback);
+    };
+
+    this.createTransactions = function(transactions, callback) {
+
+        var self = this;
+
+        return Promise.each(transactions, function(transaction) {
+            return _createTransaction(self.client, transaction);
+        })
+        .then(function() {
+            callback();
+        });
     };
 
     this.changePaymentAmount = function(newAmount, callback) {
@@ -236,6 +288,24 @@ var World = function World(callback) {
             .waitForExist('.transactionsPanel')
             .element('.transactions-columnPayee=' + this.transaction.payee)
             .then(callback.fail, callback.bind(null, null));
+    };
+
+    // ----- Reporting -----
+    this.goToDashboard = function(callback) {
+        this.client
+            .url('/')
+            .selectByVisibleText('.txnFilterForm-period', 'All time')
+            .call(callback);
+    };
+
+    // A very lightweight test that checks for the number of horizontal bars
+    this.assertTransactionsByCategory = function(categories, callback) {
+        this.client
+            .elements('.chart .plot .bar')
+            .then(function(res) {
+                expect(res.value.length).to.equal(categories.length);
+            })
+            .call(callback);
     };
 
     callback();

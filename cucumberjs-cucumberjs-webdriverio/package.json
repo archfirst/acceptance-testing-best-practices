@@ -10,6 +10,7 @@
     "test": "./node_modules/cucumber/bin/cucumber.js ./test/features/ --require ./test/step_definitions/ --format pretty --tags ~@wip --tags ~@todo"
   },
   "devDependencies": {
+    "bluebird": "^2.9.34",
     "chai": "^3.0.0",
     "chai-as-promised": "^5.1.0",
     "chai-datetime": "^1.4.0",

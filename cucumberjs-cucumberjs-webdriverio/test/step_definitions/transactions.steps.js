@@ -8,6 +8,10 @@ module.exports = function() {
         this.createTransaction(table.hashes()[0], callback);
     });
 
+    this.Given(/^the following transactions$/, function (table, callback) {
+        this.createTransactions(table.hashes(), callback);
+    });
+
     this.When(/^I change the payment amount to (\d*\.?\d*)$/, function (amount, callback) {
         this.changePaymentAmount(amount, callback);
     });
