@@ -18,14 +18,13 @@ Feature: Transactions
   Scenario: Transaction Creation
     Given a transaction with the following properties
       | account     | date       | payee               | memo | category         | payment | deposit |
-      | Amazon VISA | 02/01/2015   | Chevron Gas Station | Gas  | Auto & Transport | 30.00   |         |
+      | Amazon VISA | 02/01/2015 | Chevron Gas Station | Gas  | Auto & Transport | 30.00   |         |
 
     Then the transaction list should show the following transaction
       | account     | date       | payee               | memo | category         | payment | deposit |
       | Amazon VISA | 02/01/2015 | Chevron Gas Station | Gas  | Auto & Transport | 30.00   |         |
 
 
-  @todo
   Scenario: Transaction Update
     Given a transaction with the following properties
       | account     | date       | payee               | memo | category         | payment | deposit |
@@ -38,7 +37,6 @@ Feature: Transactions
       | Amazon VISA | 02/01/2015 | Chevron Gas Station | Gas  | Auto & Transport | 50.00   |         |
 
 
-  @todo
   Scenario: Transaction Deletion
     Given a transaction with the following properties
       | account     | date       | payee               | memo | category         | payment | deposit |

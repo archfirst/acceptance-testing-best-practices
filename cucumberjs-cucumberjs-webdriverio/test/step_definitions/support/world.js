@@ -3,12 +3,13 @@
 
 var World = function World(callback) {
     // ----- Cached objects -----
-    this.accountName = undefined;
-    this.categoryName = undefined;
+    this.account = undefined;
+    this.category = undefined;
+    this.transaction = undefined;
 
     // ----- Accounts -----
     this.createAccount = function(name, callback) {
-        this.accountName = name;
+        this.account = { name: name };
         this.client
             .url('/settings/accounts')
             .setValue('.accountAddForm-name', name)
@@ -22,9 +23,9 @@ var World = function World(callback) {
         // See the alternate approach below.
         //this.client
         //    .url('/settings/accounts')
-        //    .element('.accountView=' + this.accountName).click('..')
-        //    .element('.accountView=' + this.accountName).element('..').setValue('.accountForm-name', newName)
-        //    .element('.accountView=' + this.accountName).element('..').submitForm('.accountForm')
+        //    .element('.accountView=' + this.account.name).click('..')
+        //    .element('.accountView=' + this.account.name).element('..').setValue('.accountForm-name', newName)
+        //    .element('.accountView=' + this.account.name).element('..').submitForm('.accountForm')
         //    .call(callback);
 
         var self = this;
@@ -34,7 +35,7 @@ var World = function World(callback) {
 
         this.client
             .url('/settings/accounts')
-            .element('.accountView=' + this.accountName).element('..')
+            .element('.accountView=' + this.account.name).element('..')
             .then(function(res) {
                 // Click the list item
                 liElement = res.value.ELEMENT;
@@ -79,7 +80,7 @@ var World = function World(callback) {
 
     // ----- Categories -----
     this.createCategory = function(name, callback) {
-        this.categoryName = name;
+        this.category = { name: name };
         this.client
             .url('/settings/categories')
             .setValue('.categoryAddForm-name', name)
@@ -96,7 +97,7 @@ var World = function World(callback) {
 
         this.client
             .url('/settings/categories')
-            .element('.categoryView=' + this.categoryName).element('..')
+            .element('.categoryView=' + this.category.name).element('..')
             .then(function(res) {
                 // Click the list item
                 liElement = res.value.ELEMENT;
@@ -133,6 +134,8 @@ var World = function World(callback) {
 
     // ----- Transaction -----
     this.createTransaction = function(transaction, callback) {
+        this.transaction = transaction;
+
         var amount = (transaction.payment.length > 0) ? transaction.payment : transaction.deposit;
         var amountElement = (transaction.payment.length > 0) ? 'payment' : 'deposit';
         var txn_date = transaction.date.replace(/\//g, '');  // remove slashes
@@ -140,15 +143,56 @@ var World = function World(callback) {
         this.client
             .url('/accounts')
             .element('.accountsPanel ul').click('a=' + transaction.account)
-            .waitForExist('.transactionsPanel button')
+            .waitForExist('.transactionsPanel')
             .click('.transactionsPanel button')
-            .waitForExist('form[name=transactionForm] #txn_date')
+            .pause(300) // wait for dialog box animation to complete
             .element('form[name=transactionForm]').click('#txn_date').keys(txn_date)
             .setValue('form[name=transactionForm] #payee', transaction.payee)
             .setValue('form[name=transactionForm] #memo', transaction.memo)
             .selectByVisibleText('form[name=transactionForm] #category', transaction.category)
             .setValue('form[name=transactionForm] #' + amountElement, amount)
             .element('form[name=transactionForm]').click('button=OK')
+            .call(callback);
+    };
+
+    this.changePaymentAmount = function(newAmount, callback) {
+
+        var self = this;
+
+        this.client
+            .url('/accounts')
+            .element('.accountsPanel ul').click('a=' + this.transaction.account)
+            .waitForExist('.transactionsPanel')
+            .element('.transactions-columnPayee=' + this.transaction.payee).element('..')
+            .then(function(res) {
+                return self.client.elementIdClick(res.value.ELEMENT);
+            })
+            .pause(300) // wait for dialog box animation to complete
+            .then(function() {
+                return self.client.setValue('form[name=transactionForm] #payment', newAmount)
+            })
+            .then(function() {
+                return self.client.element('form[name=transactionForm]').click('button=OK');
+            })
+            .call(callback);
+    };
+
+    this.deleteTransaction = function(callback) {
+
+        var self = this;
+
+        this.client
+            .url('/accounts')
+            .element('.accountsPanel ul').click('a=' + this.transaction.account)
+            .waitForExist('.transactionsPanel')
+            .element('.transactions-columnPayee=' + this.transaction.payee).element('..')
+            .then(function(res) {
+                return self.client.elementIdClick(res.value.ELEMENT);
+            })
+            .pause(300) // wait for dialog box animation to complete
+            .then(function() {
+                return self.client.element('form[name=transactionForm]').click('button=Delete');
+            })
             .call(callback);
     };
 
@@ -168,15 +212,13 @@ var World = function World(callback) {
         this.client
             .url('/accounts')
             .element('.accountsPanel ul').click('a=' + txn.account)
-            .waitForExist('.transactionsPanel button')
+            .waitForExist('.transactionsPanel')
             .element('.transactions-columnPayee=' + txn.payee).element('..')
             .then(function(res) {
                 row = res.value.ELEMENT;
-                // @TODO: this assertion is frequently failing
                 self.client.elementIdElement(row, '.transactions-columnDate')
                     .getText()
                     .should.eventually.equal(txn.date)
-                    .notify(callback);
             })
             .then(function() {
                 self.client.elementIdElement(row, amountElement)
@@ -184,6 +226,16 @@ var World = function World(callback) {
                     .should.eventually.equal(amount)
                     .notify(callback);
             });
+    };
+
+    this.assertTransactionDoesNotExist = function(callback) {
+
+        this.client
+            .url('/accounts')
+            .element('.accountsPanel ul').click('a=' + this.transaction.account)
+            .waitForExist('.transactionsPanel')
+            .element('.transactions-columnPayee=' + this.transaction.payee)
+            .then(callback.fail, callback.bind(null, null));
     };
 
     callback();

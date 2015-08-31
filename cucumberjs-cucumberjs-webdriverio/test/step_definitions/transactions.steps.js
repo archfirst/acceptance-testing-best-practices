@@ -8,14 +8,12 @@ module.exports = function() {
         this.createTransaction(table.hashes()[0], callback);
     });
 
-    this.When(/^I change the transaction amount to \-(\d+)\.(\d+)$/, function (arg1, arg2, callback) {
-        //this.changeTransactionAmount(amount, callback);
-        callback.pending();
+    this.When(/^I change the payment amount to (\d*\.?\d*)$/, function (amount, callback) {
+        this.changePaymentAmount(amount, callback);
     });
 
     this.When(/^I delete the transaction$/, function (callback) {
-        //this.deleteTransaction(callback);
-        callback.pending();
+        this.deleteTransaction(callback);
     });
 
     this.Then(/^the transaction list should show the following transaction$/, function (table, callback) {
@@ -23,7 +21,6 @@ module.exports = function() {
     });
 
     this.Then(/^the transaction should not exist$/, function (callback) {
-        //this.assertTransactionDoesNotExist(callback);
-        callback.pending();
+        this.assertTransactionDoesNotExist(callback);
     });
 };
