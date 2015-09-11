@@ -31,7 +31,7 @@ var World = function World(callback) {
                     return self.client
                         .setValue('.accountAddForm-name', account.name)
                         .click('.accountAddForm button');
-                })
+                });
             })
             .call(callback);
     };
@@ -118,7 +118,7 @@ var World = function World(callback) {
                     return self.client
                         .setValue('.categoryAddForm-name', category.name)
                         .click('.categoryAddForm button');
-                })
+                });
             })
             .call(callback);
     };
@@ -221,7 +221,7 @@ var World = function World(callback) {
             })
             .pause(300) // wait for dialog box animation to complete
             .then(function() {
-                return self.client.setValue('form[name=transactionForm] #payment', newAmount)
+                return self.client.setValue('form[name=transactionForm] #payment', newAmount);
             })
             .then(function() {
                 return self.client.element('form[name=transactionForm]').click('button=OK');
@@ -270,7 +270,7 @@ var World = function World(callback) {
                 row = res.value.ELEMENT;
                 self.client.elementIdElement(row, '.transactions-columnDate')
                     .getText()
-                    .should.eventually.equal(txn.date)
+                    .should.eventually.equal(txn.date);
             })
             .then(function() {
                 self.client.elementIdElement(row, amountElement)

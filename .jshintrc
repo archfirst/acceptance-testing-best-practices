@@ -114,13 +114,13 @@
     // "es5": true,
 
     // true: Allow ES.next (ES6) syntax (ex: `const`)
-    "esnext": false,
+    "esnext": true,
 
     // true: Tolerate use of `eval` and `new Function()`
     "evil": false,
 
     // true: Tolerate `ExpressionStatement` as Programs
-    "expr": false,
+    "expr": true,
 
     // true: Tolerate defining variables inside control statements
     "funcscope": false,
@@ -201,7 +201,7 @@
     "jquery": false,
 
     // Mocha
-    "mocha": false,
+    "mocha": true,
 
     // MooTools
     "mootools": false,
@@ -242,6 +242,6 @@
     // ----- Globals -----
     // false: variable as read-only
     "globals": {
-        // "sample": false
+        "browser": false
     }
 }
