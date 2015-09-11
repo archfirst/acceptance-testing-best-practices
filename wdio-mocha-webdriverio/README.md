@@ -12,7 +12,7 @@ Running tests
 - Make sure that mocha and webdriverio are installed globally
 
 ```bash
-npm install -g mocha webdriverio
+$ npm install -g mocha webdriverio
 ```
 
 - Make sure *Manage My Money* application is running
