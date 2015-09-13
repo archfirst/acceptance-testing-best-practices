@@ -102,7 +102,8 @@ exports.config = {
     // Gets executed before test execution begins. At this point you will have access to all global
     // variables like `browser`. It is the perfect place to define custom commands.
     before: function() {
-        // do something
+        // Set viewport width to 1200px so that no information is hidden due to responsive layouts
+        browser.setViewportSize({width: 1200, height: 768});
     },
     //
     // Gets executed after all tests are done. You still have access to all global variables from
