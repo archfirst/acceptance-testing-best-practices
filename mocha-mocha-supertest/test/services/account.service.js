@@ -2,7 +2,9 @@
 
 module.exports = {
     createAccount: createAccount,
-    getAccount: getAccount
+    updateAccount: updateAccount,
+    getAccount: getAccount,
+    deleteAccount: deleteAccount
 };
 
 var request = require('./request');
@@ -25,6 +27,21 @@ function createAccount(name) {
 }
 
 /**
+ * Updates an existing account.
+ *
+ * @param {string} name
+ * @returns {Promise<Account>} A promise that returns the created account
+ */
+function updateAccount(account) {
+
+    return request.put('/accounts/' + account.id)
+        .send(account)
+        .then(function(res) {
+            return res.body;
+        });
+}
+
+/**
  * Gets an existing account.
  *
  * @param {number} id
@@ -34,6 +51,24 @@ function getAccount(id) {
 
     return request.get('/accounts/' + id)
         .then(function(res) {
+            if (res.notFound) {
+                throw 'Not found';
+            }
+
             return res.body;
+        });
+}
+
+/**
+ * Deletes an account.
+ *
+ * @param {number} id
+ * @returns {Promise} A promise that returns true when the account is deleted
+ */
+function deleteAccount(id) {
+
+    return request.delete('/accounts/' + id)
+        .then(function() {
+            return true;
         });
 }
