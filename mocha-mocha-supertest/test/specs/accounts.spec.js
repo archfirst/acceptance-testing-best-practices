@@ -32,14 +32,21 @@ describe('Accounts API', function() {
     // Then I should get the account called "Bank of America Checking"
     it('should allow updating of an account', function() {
 
+        // Given an account called "BofA Checking"
         return accountService.createAccount('BofA Checking')
+
+            // When I change the account name to "Bank of America Checking"
             .then(function(account) {
                 account.name = 'Bank of America Checking';
                 return accountService.updateAccount(account);
             })
+
+            // And I ask for the account
             .then(function(account) {
                 return accountService.getAccount(account.id);
             })
+
+            // Then I should get the account called "Bank of America Checking"
             .then(function(account) {
                 expect(account.name).to.equal('Bank of America Checking');
             });
@@ -53,11 +60,16 @@ describe('Accounts API', function() {
 
         var account = null;
 
+        // Given an account called "BofA Checking"
         return accountService.createAccount('BofA Checking')
+
+            // When I delete the account
             .then(function(createdAccount) {
                 account = createdAccount;
                 return accountService.deleteAccount(account.id);
             })
+
+            // Then the account should not exist
             .then(function() {
                 return expect(accountService.getAccount(account.id))
                     .to.eventually.be.rejectedWith('Not found');

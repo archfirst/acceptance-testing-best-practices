@@ -42,10 +42,11 @@ function updateAccount(account) {
 }
 
 /**
- * Gets an existing account.
+ * Gets an account.
  *
  * @param {number} id
  * @returns {Promise<Account>} A promise that returns the desired account
+ * @throws {String} "Not found" if account is not found
  */
 function getAccount(id) {
 
