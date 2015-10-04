@@ -2,11 +2,15 @@
 
 module.exports = {
     createTransaction: createTransaction,
+    createTransactions: createTransactions,
     updateTransaction: updateTransaction,
     getTransaction: getTransaction,
+    getTransactionsByCategory: getTransactionsByCategory,
     deleteTransaction: deleteTransaction
 };
 
+var _ = require('lodash');
+var Promise = require('bluebird');
 var request = require('./request');
 
 /**
@@ -21,6 +25,27 @@ function createTransaction(transaction) {
         .send(transaction)
         .then(function(res) {
             return res.body;
+        });
+}
+
+/**
+ * Creates transactions.
+ *
+ * @param {Transaction[]} transactions
+ * @returns {Promise<Transaction[]>} A promise that returns the created transactions
+ */
+function createTransactions(transactions) {
+
+    var tasks = [];
+    _.each(transactions, function(transaction) {
+        tasks.push(request.post('/transactions').send(transaction));
+    });
+
+    return Promise.all(tasks)
+        .then(function(responses) {
+            return _.map(responses, function(response) {
+                return response.body;
+            })
         });
 }
 
@@ -55,6 +80,23 @@ function getTransaction(id) {
             }
 
             return res.body;
+        });
+}
+
+/**
+ * Gets transactions by category.
+ *
+ * @param startDate
+ * @param endDate
+ * @returns {Promise<Object[]>} A promise that returns categories with total amounts.
+ */
+function getTransactionsByCategory(startDate, endDate) {
+
+    var dateRange = '&startDate=' + startDate.toISOString() + '&endDate=' + endDate.toISOString();
+
+    return request.get('/transactions?groupByCategory' + dateRange)
+        .then(function(response) {
+            return response.body;
         });
 }
 

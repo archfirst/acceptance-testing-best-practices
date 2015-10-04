@@ -2,11 +2,14 @@
 
 module.exports = {
     createAccount: createAccount,
+    createAccounts: createAccounts,
     updateAccount: updateAccount,
     getAccount: getAccount,
     deleteAccount: deleteAccount
 };
 
+var _ = require('lodash');
+var Promise = require('bluebird');
 var request = require('./request');
 
 /**
@@ -23,6 +26,27 @@ function createAccount(name) {
         })
         .then(function(res) {
             return res.body;
+        });
+}
+
+/**
+ * Creates accounts.
+ *
+ * @param {string[]} accountNames
+ * @returns {Promise<Account[]>} A promise that returns the created accounts
+ */
+function createAccounts(names) {
+
+    var tasks = [];
+    _.each(names, function(name) {
+        tasks.push(request.post('/accounts').send({name: name}));
+    });
+
+    return Promise.all(tasks)
+        .then(function(responses) {
+            return _.map(responses, function(response) {
+                return response.body;
+            })
         });
 }
 

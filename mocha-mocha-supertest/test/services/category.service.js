@@ -2,11 +2,14 @@
 
 module.exports = {
     createCategory: createCategory,
+    createCategories: createCategories,
     updateCategory: updateCategory,
     getCategory: getCategory,
     deleteCategory: deleteCategory
 };
 
+var _ = require('lodash');
+var Promise = require('bluebird');
 var request = require('./request');
 
 /**
@@ -23,6 +26,27 @@ function createCategory(name) {
         })
         .then(function(res) {
             return res.body;
+        });
+}
+
+/**
+ * Creates categories.
+ *
+ * @param {string[]} categoryNames
+ * @returns {Promise<Category[]>} A promise that returns the created categories
+ */
+function createCategories(names) {
+
+    var tasks = [];
+    _.each(names, function(name) {
+        tasks.push(request.post('/categories').send({name: name}));
+    });
+
+    return Promise.all(tasks)
+        .then(function(responses) {
+            return _.map(responses, function(response) {
+                return response.body;
+            })
         });
 }
 
