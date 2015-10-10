@@ -24,6 +24,7 @@ function createAccount(name) {
         .send({
             name: name
         })
+        .expect(200)
         .then(function(res) {
             return res.body;
         });
@@ -39,7 +40,7 @@ function createAccounts(names) {
 
     var tasks = [];
     _.each(names, function(name) {
-        tasks.push(request.post('/accounts').send({name: name}));
+        tasks.push(request.post('/accounts').send({name: name}).expect(200));
     });
 
     return Promise.all(tasks)
@@ -60,6 +61,7 @@ function updateAccount(account) {
 
     return request.put('/accounts/' + account.id)
         .send(account)
+        .expect(200)
         .then(function(res) {
             return res.body;
         });
@@ -75,11 +77,8 @@ function updateAccount(account) {
 function getAccount(id) {
 
     return request.get('/accounts/' + id)
+        .expect(200)
         .then(function(res) {
-            if (res.notFound) {
-                throw 'Not found';
-            }
-
             return res.body;
         });
 }
@@ -93,6 +92,7 @@ function getAccount(id) {
 function deleteAccount(id) {
 
     return request.delete('/accounts/' + id)
+        .expect(204)
         .then(function() {
             return true;
         });

@@ -24,6 +24,7 @@ function createCategory(name) {
         .send({
             name: name
         })
+        .expect(200)
         .then(function(res) {
             return res.body;
         });
@@ -39,7 +40,7 @@ function createCategories(names) {
 
     var tasks = [];
     _.each(names, function(name) {
-        tasks.push(request.post('/categories').send({name: name}));
+        tasks.push(request.post('/categories').send({name: name}).expect(200));
     });
 
     return Promise.all(tasks)
@@ -60,6 +61,7 @@ function updateCategory(category) {
 
     return request.put('/categories/' + category.id)
         .send(category)
+        .expect(200)
         .then(function(res) {
             return res.body;
         });
@@ -75,11 +77,8 @@ function updateCategory(category) {
 function getCategory(id) {
 
     return request.get('/categories/' + id)
+        .expect(200)
         .then(function(res) {
-            if (res.notFound) {
-                throw 'Not found';
-            }
-
             return res.body;
         });
 }
@@ -93,6 +92,7 @@ function getCategory(id) {
 function deleteCategory(id) {
 
     return request.delete('/categories/' + id)
+        .expect(204)
         .then(function() {
             return true;
         });

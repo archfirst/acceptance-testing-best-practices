@@ -121,7 +121,7 @@ describe('Transactions API', function() {
             // Then the transaction should not exist
             .then(function() {
                 return expect(transactionService.getTransaction(transaction.id))
-                    .to.eventually.be.rejectedWith('Not found');
+                    .to.eventually.be.rejected;
             });
     });
 });

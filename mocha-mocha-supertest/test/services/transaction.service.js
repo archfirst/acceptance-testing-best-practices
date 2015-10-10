@@ -23,6 +23,7 @@ function createTransaction(transaction) {
 
     return request.post('/transactions')
         .send(transaction)
+        .expect(200)
         .then(function(res) {
             return res.body;
         });
@@ -38,7 +39,7 @@ function createTransactions(transactions) {
 
     var tasks = [];
     _.each(transactions, function(transaction) {
-        tasks.push(request.post('/transactions').send(transaction));
+        tasks.push(request.post('/transactions').send(transaction).expect(200));
     });
 
     return Promise.all(tasks)
@@ -59,6 +60,7 @@ function updateTransaction(transaction) {
 
     return request.put('/transactions/' + transaction.id)
         .send(transaction)
+        .expect(200)
         .then(function(res) {
             return res.body;
         });
@@ -74,11 +76,8 @@ function updateTransaction(transaction) {
 function getTransaction(id) {
 
     return request.get('/transactions/' + id)
+        .expect(200)
         .then(function(res) {
-            if (res.notFound) {
-                throw 'Not found';
-            }
-
             return res.body;
         });
 }
@@ -95,6 +94,7 @@ function getTransactionsByCategory(startDate, endDate) {
     var dateRange = '&startDate=' + startDate.toISOString() + '&endDate=' + endDate.toISOString();
 
     return request.get('/transactions?groupByCategory' + dateRange)
+        .expect(200)
         .then(function(response) {
             return response.body;
         });
@@ -109,6 +109,7 @@ function getTransactionsByCategory(startDate, endDate) {
 function deleteTransaction(id) {
 
     return request.delete('/transactions/' + id)
+        .expect(204)
         .then(function() {
             return true;
         });

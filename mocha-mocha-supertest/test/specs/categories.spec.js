@@ -72,7 +72,7 @@ describe('Categories API', function() {
             // Then the category should not exist
             .then(function() {
                 return expect(categoryService.getCategory(category.id))
-                    .to.eventually.be.rejectedWith('Not found');
+                    .to.eventually.be.rejected;
             });
     });
 });

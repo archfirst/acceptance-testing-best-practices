@@ -72,7 +72,7 @@ describe('Accounts API', function() {
             // Then the account should not exist
             .then(function() {
                 return expect(accountService.getAccount(account.id))
-                    .to.eventually.be.rejectedWith('Not found');
+                    .to.eventually.be.rejected;
             });
     });
 });
