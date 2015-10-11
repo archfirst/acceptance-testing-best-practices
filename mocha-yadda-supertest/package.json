@@ -1,0 +1,25 @@
+{
+  "name": "mocha-mocha-supertest",
+  "description": "mocha-mocha-supertest",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/archfirst/acceptance-testing-best-practices.git"
+  },
+  "scripts": {
+    "test": "mocha --reporter spec test"
+  },
+  "devDependencies": {
+    "bluebird": "^2.10.1",
+    "chai": "^3.0.0",
+    "chai-as-promised": "^5.1.0",
+    "chai-datetime": "^1.4.0",
+    "chai-stats": "^0.3.0",
+    "knex": "^0.8.6",
+    "lodash": "^3.10.1",
+    "mocha": "^2.3.3",
+    "pg": "^4.4.0",
+    "supertest-as-promised": "^2.0.2",
+    "yadda": "^0.15.4"
+  }
+}
