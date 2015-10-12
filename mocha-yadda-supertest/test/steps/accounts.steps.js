@@ -7,8 +7,7 @@ var account = null;
 module.exports = English.library()
 
     .when('I create an account called "$accountName"', function(accountName, next) {
-        console.log('create an account');
-        return accountService.createAccount(accountName)
+        accountService.createAccount(accountName)
             .then(function(createdAccount) {
                 account = createdAccount;
                 next();
@@ -16,16 +15,44 @@ module.exports = English.library()
     })
 
     .when('I ask for the account', function(next) {
-        console.log('ask for the account');
-        return accountService.getAccount(account.id)
+        accountService.getAccount(account.id)
             .then(function(receivedAccount) {
-                account = createdAccount;
+                account = receivedAccount;
                 next();
             })
     })
 
     .then('I should get the account called "$accountName"', function(accountName, next) {
-        console.log('verify account');
         expect(account.name).to.equal(accountName);
+        next();
+    })
+
+    .given('an account called "$accountName"', function(accountName, next) {
+        accountService.createAccount(accountName)
+            .then(function(createdAccount) {
+                account = createdAccount;
+                next();
+            })
+    })
+
+    .when('I change the account name to "$accountName"', function(accountName, next) {
+        account.name = accountName;
+        accountService.updateAccount(account)
+            .then(function(receivedAccount) {
+                account = receivedAccount;
+                next();
+            })
+    })
+
+    .when('I delete the account', function(next) {
+        accountService.deleteAccount(account.id)
+            .then(function(receivedAccount) {
+                next();
+            })
+    })
+
+    .then('the account should not exist', function(next) {
+        expect(accountService.getAccount(account.id))
+            .to.eventually.be.rejected;
         next();
     });

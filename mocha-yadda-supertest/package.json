@@ -20,6 +20,6 @@
     "mocha": "^2.3.3",
     "pg": "^4.4.0",
     "supertest-as-promised": "^2.0.2",
-    "yadda": "^0.15.4"
+    "yadda": "^0.15.5"
   }
 }
