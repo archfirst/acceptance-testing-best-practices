@@ -39,6 +39,7 @@ new Yadda.FeatureFileSearch('./test/features').each(function(file) {
         var yadda = Yadda.createInstance(library);
 
         scenarios(feature.scenarios, function(scenario) {
+
             before(function(done) {
                 return knex.raw('truncate table accounts, categories, transactions cascade')
                     .then(function() {
@@ -46,8 +47,9 @@ new Yadda.FeatureFileSearch('./test/features').each(function(file) {
                     })
             })
 
+            var ctx = {};
             steps(scenario.steps, function(step, done) {
-                yadda.run(step, done);
+                yadda.run(step, { ctx: ctx }, done);
             });
         });
     });
