@@ -1,3 +1,5 @@
+'use strict';
+
 var Yadda = require('yadda');
 Yadda.plugins.mocha.StepLevelPlugin.init();
 
@@ -5,47 +7,19 @@ var knex = null;
 
 new Yadda.FeatureFileSearch('./test/features').each(function(file) {
 
-    // Runs before all test cases.
-    // Initializes knex.
-    before(function(done) {
-        knex = require('knex')({
-            client: 'postgresql',
-            debug: false,
-            connection: {
-                host: 'localhost',
-                user: '',
-                password: '',
-                database: 'manage-my-money',
-                charset: 'utf8'
-            }
-        });
-        done();
-    })
-
-    // Runs after all test cases.
-    // Destroys the database connection.
-    after(function(done) {
-        if (knex && knex.client) {
-            return knex.destroy()
-                .then(function() {
-                    done();
-                });
-        }
-    })
+    // Establish before and after hooks for the test suite
+    before(initDb);
+    after(releaseDb);
 
     featureFile(file, function(feature) {
 
-        var library = require('./steps/accounts.steps');
-        var yadda = Yadda.createInstance(library);
+        var libraries = require_feature_libraries(feature);
+        var yadda = Yadda.createInstance(libraries);
 
         scenarios(feature.scenarios, function(scenario) {
 
-            before(function(done) {
-                return knex.raw('truncate table accounts, categories, transactions cascade')
-                    .then(function() {
-                        done();
-                    })
-            })
+            // Truncate tables before every scenario
+            before(truncateTables);
 
             var ctx = {};
             steps(scenario.steps, function(step, done) {
@@ -54,3 +28,42 @@ new Yadda.FeatureFileSearch('./test/features').each(function(file) {
         });
     });
 });
+
+function require_feature_libraries(feature) {
+    return feature.annotations.libraries.split(', ').reduce(require_library, []);
+}
+
+function require_library(libraries, library) {
+    return libraries.concat(require('./steps/' + library + '.steps'));
+}
+
+function initDb(done) {
+    knex = require('knex')({
+        client: 'postgresql',
+        debug: false,
+        connection: {
+            host: 'localhost',
+            user: '',
+            password: '',
+            database: 'manage-my-money',
+            charset: 'utf8'
+        }
+    });
+    done();
+}
+
+function releaseDb(done) {
+    if (knex && knex.client) {
+        return knex.destroy()
+            .then(function() {
+                done();
+            });
+    }
+}
+
+function truncateTables(done) {
+    return knex.raw('truncate table accounts, categories, transactions cascade')
+        .then(function() {
+            done();
+        });
+}

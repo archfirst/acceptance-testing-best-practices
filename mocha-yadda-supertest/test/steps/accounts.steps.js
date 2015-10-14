@@ -1,3 +1,5 @@
+'use strict';
+
 var English = require('yadda').localisation.English;
 var accountService = require('./services/account.service');
 var expect = require('../chai-helpers').expect;
@@ -10,7 +12,7 @@ module.exports = English.library()
             .then(function(createdAccount) {
                 self.ctx.account = createdAccount;
                 next();
-            })
+            });
     })
 
     .when('I ask for the account', function(next) {
@@ -19,7 +21,7 @@ module.exports = English.library()
             .then(function(receivedAccount) {
                 self.ctx.account = receivedAccount;
                 next();
-            })
+            });
     })
 
     .then('I should get the account called "$accountName"', function(accountName, next) {
@@ -33,7 +35,7 @@ module.exports = English.library()
             .then(function(createdAccount) {
                 self.ctx.account = createdAccount;
                 next();
-            })
+            });
     })
 
     .when('I change the account name to "$accountName"', function(accountName, next) {
@@ -43,14 +45,14 @@ module.exports = English.library()
             .then(function(receivedAccount) {
                 self.ctx.account = receivedAccount;
                 next();
-            })
+            });
     })
 
     .when('I delete the account', function(next) {
         accountService.deleteAccount(this.ctx.account.id)
-            .then(function(receivedAccount) {
+            .then(function() {
                 next();
-            })
+            });
     })
 
     .then('the account should not exist', function(next) {

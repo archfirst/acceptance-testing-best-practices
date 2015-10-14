@@ -47,7 +47,7 @@ function createCategories(names) {
         .then(function(responses) {
             return _.map(responses, function(response) {
                 return response.body;
-            })
+            });
         });
 }
 

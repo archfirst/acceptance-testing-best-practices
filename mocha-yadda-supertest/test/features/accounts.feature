@@ -1,3 +1,4 @@
+@libraries=accounts
 Feature: Accounts
 In order to organize my transactions,
 as a user,

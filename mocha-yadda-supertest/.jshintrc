@@ -1,0 +1,11 @@
+{
+    "extends": "../.jshintrc",
+
+    // ----- Globals -----
+    // false: variable as read-only
+    "globals": {
+        "featureFile": false,
+        "scenarios": false,
+        "steps": false
+    }
+}

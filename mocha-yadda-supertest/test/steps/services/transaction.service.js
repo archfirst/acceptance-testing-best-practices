@@ -46,7 +46,7 @@ function createTransactions(transactions) {
         .then(function(responses) {
             return _.map(responses, function(response) {
                 return response.body;
-            })
+            });
         });
 }
 
