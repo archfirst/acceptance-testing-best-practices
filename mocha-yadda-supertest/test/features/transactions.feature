@@ -24,7 +24,6 @@ Scenario: Transaction Creation
         -------------------------------------------------------------------------------------
 
 
-@Pending
 Scenario: Transaction Update
     Given a transaction with the following properties
         -------------------------------------------------------------------------------------
@@ -37,8 +36,10 @@ Scenario: Transaction Update
     And I ask for the transaction
 
     Then I should get the following transaction
+        -------------------------------------------------------------------------------------
         | date       | payee               | memo | amount | account     | category         |
         | 2015-02-01 | Chevron Gas Station | Gas  | -50.00 | Amazon VISA | Auto & Transport |
+        -------------------------------------------------------------------------------------
 
 
 @Pending

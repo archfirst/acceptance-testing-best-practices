@@ -15,9 +15,21 @@ function specToResource(txnSpec, accountId, categoryId) {
         txn_date: new Date(txnSpec.date),
         payee: txnSpec.payee,
         memo: txnSpec.memo,
-        amount: txnSpec.amount,
+        amount: parseFloat(txnSpec.amount),
         account_id: accountId,
         category_id: categoryId
+    };
+}
+
+function receivedToResource(received) {
+    return {
+        id: received.id,
+        txn_date: new Date(received.txn_date),
+        payee: received.payee,
+        memo: received.memo,
+        amount: parseFloat(received.amount),
+        account_id: received.account.id,
+        category_id: received.category.id
     };
 }
 
@@ -28,7 +40,7 @@ module.exports = English.library(dictionary)
         var txn = specToResource(table[0], this.ctx.account.id, this.ctx.category.id);
         transactionService.createTransaction(txn)
             .then(function(createdTransaction) {
-                self.ctx.transaction = createdTransaction;
+                self.ctx.transaction = receivedToResource(createdTransaction);
                 next();
             });
     })
@@ -37,20 +49,35 @@ module.exports = English.library(dictionary)
         var self = this;
         transactionService.getTransaction(this.ctx.transaction.id)
             .then(function(receivedTransaction) {
-                self.ctx.transaction = receivedTransaction;
+                self.ctx.transaction = receivedToResource(receivedTransaction);
                 next();
             });
     })
 
     .then('I should get the following transaction\n$table', function(table, next) {
         var actual = this.ctx.transaction;
-        var expected = table[0];
-        expect(new Date(actual.txn_date)).to.equalDate(new Date(expected.date));
-        expect(actual.payee).to.equal(expected.payee);
-        expect(actual.memo).to.equal(expected.memo);
-        expect(actual.amount).to.almost.equal(parseFloat(expected.amount), 2);
-        expect(actual.payee).to.equal(expected.payee);
-        expect(actual.account.name).to.equal(expected.account);
-        expect(actual.category.name).to.equal(expected.category);
+        var expected = specToResource(table[0], this.ctx.account.id, this.ctx.category.id);
+        expected.id = actual.id; // expected does not have a id, just add one
+        expect(actual).to.deep.equal(expected);
         next();
+    })
+
+    .given('a transaction with the following properties\n$table', function(table, next) {
+        var self = this;
+        var txn = specToResource(table[0], this.ctx.account.id, this.ctx.category.id);
+        transactionService.createTransaction(txn)
+            .then(function(createdTransaction) {
+                self.ctx.transaction = receivedToResource(createdTransaction);
+                next();
+            });
+    })
+
+    .when('I change the transaction amount to $amount', function(amount, next) {
+        var self = this;
+        this.ctx.transaction.amount = amount;
+        transactionService.updateTransaction(this.ctx.transaction)
+            .then(function(receivedTransaction) {
+                self.ctx.transaction = receivedToResource(receivedTransaction);
+                next();
+            });
     });
