@@ -42,7 +42,6 @@ Scenario: Transaction Update
         -------------------------------------------------------------------------------------
 
 
-@Pending
 Scenario: Transaction Deletion
     Given a transaction with the following properties
         -------------------------------------------------------------------------------------

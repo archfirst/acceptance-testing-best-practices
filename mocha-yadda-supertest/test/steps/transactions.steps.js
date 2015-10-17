@@ -80,4 +80,18 @@ module.exports = English.library(dictionary)
                 self.ctx.transaction = receivedToResource(receivedTransaction);
                 next();
             });
+    })
+
+    .when('I delete the transaction', function(next) {
+        transactionService.deleteTransaction(this.ctx.transaction.id)
+            .then(function() {
+                next();
+            });
+    })
+
+    .then('the transaction should not exist', function(next) {
+        expect(transactionService.getTransaction(this.ctx.transaction.id))
+            .to.eventually.be.rejected;
+        next();
     });
+
