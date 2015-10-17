@@ -1,8 +1,10 @@
 'use strict';
 
-var English = require('yadda').localisation.English;
-var accountService = require('./services/account.service');
+var Yadda = require('yadda');
 var expect = require('../chai-helpers').expect;
+var accountService = require('./services/account.service');
+
+var English = Yadda.localisation.English;
 
 module.exports = English.library()
 
