@@ -17,7 +17,6 @@ Background:
         Food & Dining
         ----------------
 
-@Only
 Scenario: Transactions By Category
     Given the following transactions
         ----------------------------------------------------------------------------

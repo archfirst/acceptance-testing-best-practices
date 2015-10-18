@@ -67,7 +67,16 @@ module.exports = English.library(dictionary)
         next();
     })
 
-    .given('the following accounts\$list', function(list, next) {
-        console.log('list', list);
-        next();
+    .given('the following accounts\$list', function(accountNames, next) {
+
+        // TODO: Remove once list converter is working correctly
+        accountNames.splice(0, 1);
+        console.log('accounts:', accountNames);
+
+        var self = this;
+        accountService.createAccounts(accountNames)
+            .then(function(createdAccounts) {
+                self.ctx.accounts = createdAccounts;
+                next();
+            });
     });

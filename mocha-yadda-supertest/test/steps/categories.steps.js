@@ -8,7 +8,7 @@ var English = Yadda.localisation.English;
 var Dictionary = Yadda.Dictionary;
 
 var dictionary = new Dictionary()
-    .define('table', /([^\u0000]*)/, Yadda.converters.table);
+    .define('list', /([^\u0000]*)/, Yadda.converters.list);
 
 module.exports = English.library(dictionary)
 
@@ -67,4 +67,16 @@ module.exports = English.library(dictionary)
         next();
     })
 
-    .given('the following categories\n$table');
+    .given('the following categories\$list', function(categoryNames, next) {
+
+        // TODO: Remove once list converter is working correctly
+        categoryNames.splice(0, 1);
+        console.log('categories:', categoryNames);
+
+        var self = this;
+        categoryService.createCategories(categoryNames)
+            .then(function(createdCategories) {
+                self.ctx.categories = createdCategories;
+                next();
+            });
+    });

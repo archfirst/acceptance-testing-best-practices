@@ -1,5 +1,6 @@
 'use strict';
 
+var _ = require('lodash');
 var Yadda = require('yadda');
 var expect = require('../chai-helpers').expect;
 var transactionService = require('./services/transaction.service');
@@ -31,6 +32,14 @@ function receivedToResource(received) {
         account_id: received.account.id,
         category_id: received.category.id
     };
+}
+
+function receivedToResources(receivedList) {
+    var txns = [];
+    _.each(receivedList, function(received) {
+        txns.push(receivedToResource(received));
+    });
+    return txns;
 }
 
 module.exports = English.library(dictionary)
@@ -95,8 +104,39 @@ module.exports = English.library(dictionary)
         next();
     })
 
-    .given('the following transactions\n$table')
+    .given('the following transactions\n$table', function(txnSpecs, next) {
+        var self = this;
 
-    .when('I ask for transactions by category with start date of $start and end date of $end')
+        // Convert transaction specs to resources
+        var txns = [];
+        _.each(txnSpecs, function(txnSpec) {
+            var accountId = _.findWhere( self.ctx.accounts, {name: txnSpec.account} ).id;
+            var categoryId = _.findWhere( self.ctx.categories, {name: txnSpec.category} ).id;
+            txns.push(specToResource(txnSpec, accountId, categoryId));
+        });
 
-    .then('I should get the following summary of transactions by category\n$table');
+        // Create transactions
+        transactionService.createTransactions(txns)
+            .then(function(createdTransactions) {
+                self.ctx.transactions = receivedToResources(createdTransactions);
+                next();
+            });
+    })
+
+    .when('I ask for transactions by category with start date of $start and end date of $end', function(start, end, next) {
+        var self = this;
+        transactionService.getTransactionsByCategory(new Date(start), new Date(end))
+            .then(function(transactionsByCategory) {
+                self.ctx.transactionsByCategory = transactionsByCategory;
+                next();
+            });
+    })
+
+    .then('I should get the following summary of transactions by category\n$table', function(expectedItems, next) {
+        var self = this;
+        _.each(expectedItems, function(expectedItem) {
+            var actualItem =  _.findWhere( self.ctx.transactionsByCategory, {cat_name: expectedItem.category} );
+            expect(actualItem.amount).to.equal(parseFloat(expectedItem.amount));
+        });
+        next();
+    });
