@@ -6,21 +6,18 @@ I want the ability to summarize my transactions in different ways.
 
 Background:
     Given the following accounts
-        ----------
-        | name   |
-        | Cash   |
-        | Credit |
-        ----------
+        ------
+        Cash
+        Credit
+        ------
 
     And the following categories
-        --------------------
-        | name             |
-        | Auto & Transport |
-        | Food & Dining    |
-        --------------------
+        ----------------
+        Auto & Transport
+        Food & Dining
+        ----------------
 
-
-@Pending
+@Only
 Scenario: Transactions By Category
     Given the following transactions
         ----------------------------------------------------------------------------
@@ -33,7 +30,7 @@ Scenario: Transactions By Category
         | 2015-01-06 | Grocery Store | Food  | -60.00 | Credit  | Food & Dining    |
         ----------------------------------------------------------------------------
 
-    When I ask for transactions by category with start date of "2015-01-02" and end date of "2015-01-05"
+    When I ask for transactions by category with start date of 2015-01-02 and end date of 2015-01-05
 
     Then I should get the following summary of transactions by category
         ------------------------------

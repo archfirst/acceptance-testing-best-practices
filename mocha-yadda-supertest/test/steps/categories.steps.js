@@ -5,8 +5,12 @@ var expect = require('../chai-helpers').expect;
 var categoryService = require('./services/category.service');
 
 var English = Yadda.localisation.English;
+var Dictionary = Yadda.Dictionary;
 
-module.exports = English.library()
+var dictionary = new Dictionary()
+    .define('table', /([^\u0000]*)/, Yadda.converters.table);
+
+module.exports = English.library(dictionary)
 
     .when('I create a category called "$categoryName"', function(categoryName, next) {
         var self = this;
@@ -61,4 +65,6 @@ module.exports = English.library()
         expect(categoryService.getCategory(this.ctx.category.id))
             .to.eventually.be.rejected;
         next();
-    });
+    })
+
+    .given('the following categories\n$table');

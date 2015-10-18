@@ -5,8 +5,12 @@ var expect = require('../chai-helpers').expect;
 var accountService = require('./services/account.service');
 
 var English = Yadda.localisation.English;
+var Dictionary = Yadda.Dictionary;
 
-module.exports = English.library()
+var dictionary = new Dictionary()
+    .define('list', /([^\u0000]*)/, Yadda.converters.list);
+
+module.exports = English.library(dictionary)
 
     .when('I create an account called "$accountName"', function(accountName, next) {
         var self = this;
@@ -60,5 +64,10 @@ module.exports = English.library()
     .then('the account should not exist', function(next) {
         expect(accountService.getAccount(this.ctx.account.id))
             .to.eventually.be.rejected;
+        next();
+    })
+
+    .given('the following accounts\$list', function(list, next) {
+        console.log('list', list);
         next();
     });

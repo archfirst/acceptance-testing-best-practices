@@ -93,5 +93,10 @@ module.exports = English.library(dictionary)
         expect(transactionService.getTransaction(this.ctx.transaction.id))
             .to.eventually.be.rejected;
         next();
-    });
+    })
 
+    .given('the following transactions\n$table')
+
+    .when('I ask for transactions by category with start date of $start and end date of $end')
+
+    .then('I should get the following summary of transactions by category\n$table');
