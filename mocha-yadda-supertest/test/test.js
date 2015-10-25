@@ -38,6 +38,7 @@ function require_library(libraries, library) {
 }
 
 function initDb(done) {
+    console.log('initDb');
     knex = require('knex')({
         client: 'postgresql',
         debug: false,
@@ -53,6 +54,7 @@ function initDb(done) {
 }
 
 function releaseDb(done) {
+    console.log('releaseDb');
     if (knex && knex.client) {
         return knex.destroy()
             .then(function() {
@@ -62,6 +64,7 @@ function releaseDb(done) {
 }
 
 function truncateTables(done) {
+    console.log('truncateTables');
     return knex.raw('truncate table accounts, categories, transactions cascade')
         .then(function() {
             done();

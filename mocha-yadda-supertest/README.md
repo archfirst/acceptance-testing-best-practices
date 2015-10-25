@@ -37,3 +37,21 @@ $ cd <this-directory>
 $ npm install
 $ npm test
 ```
+
+Yadda Configuration
+-------------------
+Yadda can be integrated with Mocha in two ways, using the `StepLevelPlugin` or the `ScenarioLevelPlugin`.
+Each plugin translates features, scenarios and steps to different constructs in Mocha. 
+
+- `StepLevelPlugin`: Each step is a separate Mocha test. This is generally better for output
+because you can see all the steps executed.
+    - feature > describe
+    - scenario > describe
+    - step > it
+    
+- `ScenarioLevelPlugin`: Each scenario is a separate Mocha test. You only see the scenario title in the mocha output.
+    - feature > describe
+    - scenario > it
+    - step > no translation (executes as part of the scenario)
+
+We are using the `StepLevelPlugin` to integrate with Mocha. See [here](test/test.js).
