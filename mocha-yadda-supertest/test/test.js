@@ -5,11 +5,13 @@ Yadda.plugins.mocha.StepLevelPlugin.init();
 
 var knex = null;
 
-new Yadda.FeatureFileSearch('./test/features').each(function(file) {
+// Establish before hook - this will run before any feature file is executed
+before(initDb);
 
-    // Establish before and after hooks for the test suite
-    before(initDb);
-    after(releaseDb);
+// Establish after hook - this will run after all feature files have been executed
+after(releaseDb);
+
+new Yadda.FeatureFileSearch('./test/features').each(function(file) {
 
     featureFile(file, function(feature) {
 
@@ -38,7 +40,6 @@ function require_library(libraries, library) {
 }
 
 function initDb(done) {
-    console.log('initDb');
     knex = require('knex')({
         client: 'postgresql',
         debug: false,
@@ -54,7 +55,6 @@ function initDb(done) {
 }
 
 function releaseDb(done) {
-    console.log('releaseDb');
     if (knex && knex.client) {
         return knex.destroy()
             .then(function() {
@@ -64,7 +64,6 @@ function releaseDb(done) {
 }
 
 function truncateTables(done) {
-    console.log('truncateTables');
     return knex.raw('truncate table accounts, categories, transactions cascade')
         .then(function() {
             done();
