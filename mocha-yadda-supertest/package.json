@@ -1,13 +1,13 @@
 {
-  "name": "mocha-mocha-supertest",
-  "description": "mocha-mocha-supertest",
+  "name": "mocha-yadda-supertest",
+  "description": "mocha-yadda-supertest",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/archfirst/acceptance-testing-best-practices.git"
   },
   "scripts": {
-    "test": "mocha --reporter spec test"
+    "test": "mocha"
   },
   "devDependencies": {
     "bluebird": "^2.10.1",
