@@ -13,7 +13,7 @@ var dictionary = new Dictionary()
 
 function specToResource(txnSpec, accountId, categoryId) {
     return {
-        txn_date: new Date(txnSpec.date),
+        txn_date: (txnSpec.date) ? new Date(txnSpec.date) : new Date(),
         payee: txnSpec.payee,
         memo: txnSpec.memo,
         amount: parseFloat(txnSpec.amount),
@@ -44,9 +44,40 @@ function receivedToResources(receivedList) {
 
 module.exports = English.library(dictionary)
 
-    .when('I create a transaction with the following properties\n$table', function(table, next) {
+    .when('I make the following deposit to $account\n$table', function(account, table, next) {
         var self = this;
-        var txn = specToResource(table[0], this.ctx.account.id, this.ctx.category.id);
+        var txnSpec = table[0];
+        var accountId = _.findWhere( self.ctx.accounts, {name: account} ).id;
+        var categoryId = _.findWhere( self.ctx.categories, {name: txnSpec.category} ).id;
+        var txn = specToResource(txnSpec, accountId, categoryId);
+        transactionService.createTransaction(txn)
+            .then(function(createdTransaction) {
+                self.ctx.transaction = receivedToResource(createdTransaction);
+                next();
+            });
+    })
+
+    .when('I make the following payment from $account\n$table', function(account, table, next) {
+        var self = this;
+        var txnSpec = table[0];
+        txnSpec.amount = -txnSpec.amount;  // payments are negative
+        var accountId = _.findWhere( self.ctx.accounts, {name: account} ).id;
+        var categoryId = _.findWhere( self.ctx.categories, {name: txnSpec.category} ).id;
+        var txn = specToResource(txnSpec, accountId, categoryId);
+        transactionService.createTransaction(txn)
+            .then(function(createdTransaction) {
+                self.ctx.transaction = receivedToResource(createdTransaction);
+                next();
+            });
+    })
+
+    .when('I make the following purchase using $account\n$table', function(account, table, next) {
+        var self = this;
+        var txnSpec = table[0];
+        txnSpec.amount = -txnSpec.amount;  // payments are negative
+        var accountId = _.findWhere( self.ctx.accounts, {name: account} ).id;
+        var categoryId = _.findWhere( self.ctx.categories, {name: txnSpec.category} ).id;
+        var txn = specToResource(txnSpec, accountId, categoryId);
         transactionService.createTransaction(txn)
             .then(function(createdTransaction) {
                 self.ctx.transaction = receivedToResource(createdTransaction);
@@ -63,17 +94,43 @@ module.exports = English.library(dictionary)
             });
     })
 
-    .then('I should get the following transaction\n$table', function(table, next) {
+    .then('I should get the following deposit\n$table', function(table, next) {
+        var self = this;
         var actual = this.ctx.transaction;
-        var expected = specToResource(table[0], this.ctx.account.id, this.ctx.category.id);
-        expected.id = actual.id; // expected does not have a id, just add one
+        var txnSpec = table[0];
+
+        // Prepare fields of expected transaction
+        var categoryId = _.findWhere( self.ctx.categories, {name: txnSpec.category} ).id;
+        var expected = specToResource(txnSpec, actual.account_id, categoryId);
+        expected.id = actual.id;
+        expected.txn_date = actual.txn_date;
+
+        expect(actual).to.deep.equal(expected);
+        next();
+    })
+
+    .then('I should get the following payment\n$table', function(table, next) {
+        var self = this;
+        var actual = this.ctx.transaction;
+        var txnSpec = table[0];
+
+        // Prepare fields of expected transaction
+        txnSpec.amount = -txnSpec.amount;  // payments are negative
+        var categoryId = _.findWhere( self.ctx.categories, {name: txnSpec.category} ).id;
+        var expected = specToResource(txnSpec, actual.account_id, categoryId);
+        expected.id = actual.id;
+        expected.txn_date = actual.txn_date;
+
         expect(actual).to.deep.equal(expected);
         next();
     })
 
     .given('a transaction with the following properties\n$table', function(table, next) {
         var self = this;
-        var txn = specToResource(table[0], this.ctx.account.id, this.ctx.category.id);
+        var txnSpec = table[0];
+        var accountId = _.findWhere( self.ctx.accounts, {name: txnSpec.account} ).id;
+        var categoryId = _.findWhere( self.ctx.categories, {name: txnSpec.category} ).id;
+        var txn = specToResource(txnSpec, accountId, categoryId);
         transactionService.createTransaction(txn)
             .then(function(createdTransaction) {
                 self.ctx.transaction = receivedToResource(createdTransaction);
@@ -81,9 +138,9 @@ module.exports = English.library(dictionary)
             });
     })
 
-    .when('I change the transaction amount to $amount', function(amount, next) {
+    .when('I change the purchase amount to $amount', function(amount, next) {
         var self = this;
-        this.ctx.transaction.amount = amount;
+        this.ctx.transaction.amount = -amount;  // payments are negative
         transactionService.updateTransaction(this.ctx.transaction)
             .then(function(receivedTransaction) {
                 self.ctx.transaction = receivedToResource(receivedTransaction);
@@ -123,7 +180,8 @@ module.exports = English.library(dictionary)
             });
     })
 
-    .when('I ask for transactions by category with start date of $start and end date of $end', function(start, end, next) {
+    .when('I ask for transactions by category with start date of $start and end date of $end',
+        function(start, end, next) {
         var self = this;
         transactionService.getTransactionsByCategory(new Date(start), new Date(end))
             .then(function(transactionsByCategory) {
