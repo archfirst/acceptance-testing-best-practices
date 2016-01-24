@@ -8,7 +8,7 @@ We use a full-stack application called *Manage My Money* to show how real applic
 
 We use the [Specification-By-Example](http://www.amazon.com/gp/product/1617290084/ref=as_li_ss_tl?ie=UTF8&tag=swingwiki-20&linkCode=as2&camp=217153&creative=399701&creativeASIN=1617290084) (SBE) technique to define the requirements of the application. You can find the specification of the *Manage My Money* application [here](https://github.com/archfirst/acceptance-testing-best-practices/tree/master/cucumberjs-cucumberjs-webdriverio/test/features). We use industry leading tools such as [Cucumber](https://github.com/cucumber/cucumber/wiki/Gherkin) and [Selenium](https://seleniumhq.github.io/docs/) to drive automated testing of this specification. Each test scenario wipes out the server data before running the test. This allows each scenario to set up custom data it needs. If you do not have this level of control over your back-end you may use a different approach, e.g. use a server with a known set of test data.
 
-If there is a testing tool or framework that is not covered by this project and your are really passionate about it, please feel free to send us a pull request with your contribution. Note that you should create a separate directory for your contribution based on the guidelines below.
+If there is a testing tool or framework that is not covered by this project and you are really passionate about it, please feel free to send us a pull request with your contribution. Note that you should create a separate directory for your contribution based on the guidelines below.
 
 ## Project Structure
 
