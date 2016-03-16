@@ -78,6 +78,10 @@ var initClient = function(callback) {
     client = webdriverio
         .remote(options)
         .init()
+        .setViewportSize({width: 1024, height: 768}, true)
+        .getViewportSize().then(function(size) {
+            console.log(size);
+        })
         .call(callback);
 };
 
